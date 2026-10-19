@@ -49,10 +49,113 @@
   function drawPlanet(p,t){const glow=ctx.createRadialGradient(p.x,p.y,p.r*.5,p.x,p.y,p.r*1.7);glow.addColorStop(0,p.c[0]+"28");glow.addColorStop(1,"#00000000");ctx.fillStyle=glow;ctx.beginPath();ctx.arc(p.x,p.y,p.r*1.7,0,Math.PI*2);ctx.fill();if(p.target&&p.r>34){ctx.save();ctx.translate(p.x,p.y);ctx.rotate(-.28+Math.sin(t*.0004+p.phase)*.05);ctx.strokeStyle="#c6d6ff8c";ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(0,0,p.r*1.35,p.r*.38,0,0,Math.PI*2);ctx.stroke();ctx.restore()}const g=ctx.createRadialGradient(p.x-p.r*.36,p.y-p.r*.42,p.r*.08,p.x,p.y,p.r);g.addColorStop(0,p.c[0]);g.addColorStop(.65,p.c[1]);g.addColorStop(1,"#171846");ctx.fillStyle=g;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();ctx.strokeStyle=p.target?"#ffffff72":"#ffffff35";ctx.lineWidth=1.5;ctx.stroke();ctx.fillStyle="#fff";ctx.font=`900 ${Math.max(17,p.r*.88)}px Nunito,sans-serif`;ctx.textAlign="center";ctx.textBaseline="middle";ctx.shadowColor="#0b1647";ctx.shadowBlur=5;ctx.fillText("B",p.x,p.y+1);ctx.shadowBlur=0}
   function drawEffects(){for(const p of trail){ctx.globalAlpha=Math.max(0,p.life/p.max)*.65;ctx.fillStyle=p.color;ctx.shadowColor=p.color;ctx.shadowBlur=15;ctx.beginPath();ctx.arc(p.x,p.y,p.size*(p.life/p.max),0,Math.PI*2);ctx.fill()}ctx.shadowBlur=0;for(const p of particles){ctx.globalAlpha=Math.max(0,p.life/p.max);ctx.fillStyle=p.color;ctx.shadowColor=p.color;ctx.shadowBlur=p.spark?12:4;if(p.spark){ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.life*.08);ctx.fillRect(-p.size*.5,-p.size*1.8,p.size,p.size*3.6);ctx.restore()}else{ctx.beginPath();ctx.arc(p.x,p.y,p.size*(p.life/p.max),0,Math.PI*2);ctx.fill()}}ctx.globalAlpha=1;ctx.shadowBlur=0}
   function drawShip(t=0){ctx.save();ctx.translate(ship.x,ship.y);ctx.rotate(ship.angle);const moving=animation&&animation.phase==="move",spinning=animation&&animation.phase==="spin";if(moving){const flame=18+Math.random()*12;const fg=ctx.createLinearGradient(-12,0,-12-flame,0);fg.addColorStop(0,"#fff5b5");fg.addColorStop(.35,"#72efff");fg.addColorStop(1,"#f85fc7");ctx.fillStyle=fg;ctx.shadowColor="#65eaff";ctx.shadowBlur=24;ctx.beginPath();ctx.moveTo(-12,-5);ctx.lineTo(-12-flame,0);ctx.lineTo(-12,5);ctx.closePath();ctx.fill()}ctx.shadowColor=spinning?"#ff86d6":"#67e9ff";ctx.shadowBlur=spinning?34:22;ctx.fillStyle="#ff9e77";ctx.beginPath();ctx.moveTo(-13,-6);ctx.lineTo(-28,0);ctx.lineTo(-13,6);ctx.closePath();ctx.fill();ctx.fillStyle="#ffe7a0";ctx.beginPath();ctx.moveTo(-13,-3);ctx.lineTo(-22,0);ctx.lineTo(-13,3);ctx.closePath();ctx.fill();ctx.shadowBlur=8;ctx.fillStyle="#eaf7ff";ctx.strokeStyle="#75dfff";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(23,0);ctx.quadraticCurveTo(3,-18,-14,-11);ctx.lineTo(-10,0);ctx.lineTo(-14,11);ctx.quadraticCurveTo(3,18,23,0);ctx.closePath();ctx.fill();ctx.stroke();ctx.shadowBlur=0;ctx.fillStyle="#58c8ff";ctx.beginPath();ctx.ellipse(3,0,7,5,0,0,Math.PI*2);ctx.fill();ctx.restore()}
-  function findHit(){return planets.find(p=>p.target&&Math.hypot(ship.x-p.x,ship.y-p.y)<=p.r+ship.r+8)}
-  function hitTest(p=null){if(p){planets=planets.filter(planet=>planet!==p);badges++;badgeCount.textContent=`${badges} ⭐`;statusText.textContent="Planet B collected!";addBurst(p.x,p.y,42,true);playExplosion();playCelebration();say(`🌟 PLANET COLLECTED! The planet disappeared — your rocket is still flying! ${badges} ${badges===1?"badge":"badges"}`);return true}statusText.textContent="Flight complete — no planet this time!";playNoHit();say("Nice flight! No planet touched. Try again!");return false}
-  function update(t){if(animation){if(animation.phase==="spin"){const p=Math.min(1,(t-animation.at)/animation.duration),e=1-Math.pow(1-p,3);ship.angle=animation.a0+(animation.a1-animation.a0)*e;if(t-lastTrail>25){addTrail();lastTrail=t}if(p>=1){animation=null;statusText.textContent="Spin complete. Press B to move!"}}else{const p=Math.min(1,(t-animation.at)/animation.duration),e=1-Math.pow(1-p,2);ship.x=wrap(animation.x0+(animation.x1-animation.x0)*e,W);ship.y=wrap(animation.y0+(animation.y1-animation.y0)*e,H);if(t-lastTrail>18){addTrail();lastTrail=t}const hit=findHit();if(hit){animation=null;hitTest(hit)}else if(p>=1){animation=null;hitTest()}}}
-    trail=trail.filter(p=>p.life>0);for(const p of trail){p.life--;p.size*=1.005}
+  function findHit() {
+    // Every planet, large or small, can be collected.
+    return planets.find(p =>
+      Math.hypot(ship.x - p.x, ship.y - p.y) <= p.r + ship.r + 8
+    );
+  }
+
+  function hitTest(p = null) {
+    if (p) {
+      // Remove only the planet that the rocket touched.
+      planets = planets.filter(planet => planet !== p);
+
+      // Give one badge point for every planet collected.
+      badges++;
+      badgeCount.textContent = `${badges} ⭐`;
+
+      // Remember that this flight collected a planet.
+      if (animation) animation.hitSomething = true;
+
+      statusText.textContent = "Planet collected!";
+      addBurst(p.x, p.y, 42, true);
+      playExplosion();
+      playCelebration();
+      say(`🌟 Planet collected! +1 badge! Total: ${badges}`);
+
+      // IMPORTANT: Do not hide, reset, or remove the rocket.
+      return true;
+    }
+
+    statusText.textContent = "Flight complete!";
+    playNoHit();
+    say("Flight complete! Try another move.");
+    return false;
+  }
+
+  function update(t) {
+    if (animation) {
+      if (animation.phase === "spin") {
+        const p = Math.min(1, (t - animation.at) / animation.duration);
+        const e = 1 - Math.pow(1 - p, 3);
+
+        ship.angle = animation.a0 + (animation.a1 - animation.a0) * e;
+
+        if (t - lastTrail > 25) {
+          addTrail();
+          lastTrail = t;
+        }
+
+        if (p >= 1) {
+          animation = null;
+          statusText.textContent = "Spin complete. Press B to move!";
+        }
+      } else if (animation.phase === "move") {
+        const p = Math.min(1, (t - animation.at) / animation.duration);
+        const e = 1 - Math.pow(1 - p, 2);
+
+        // Keep moving along the original flight path.
+        // Wrap around the screen edges without creating walls.
+        ship.x = wrap(
+          animation.x0 + (animation.x1 - animation.x0) * e, W
+        );
+        ship.y = wrap(
+          animation.y0 + (animation.y1 - animation.y0) * e, H
+        );
+
+        if (t - lastTrail > 18) {
+          addTrail();
+          lastTrail = t;
+        }
+
+        // Check ALL planets. Collecting one does not stop the rocket.
+        const hit = findHit();
+        if (hit) {
+          hitTest(hit);
+        }
+
+        // Finish the move only when the full flight is complete.
+        if (p >= 1) {
+          const collected = animation.hitSomething;
+          animation = null;
+
+          if (collected) {
+            statusText.textContent = "Planet collected! Press B to fly again.";
+            say(`Flight complete! You have ${badges} badge${badges === 1 ? "" : "s"}!`);
+          } else {
+            hitTest();
+          }
+        }
+      }
+    }
+
+    trail = trail.filter(p => p.life > 0);
+    for (const p of trail) {
+      p.life--;
+      p.size *= 1.005;
+    }
+
+    particles = particles.filter(p => p.life > 0);
+    for (const p of particles) {
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vx *= 0.985;
+      p.vy *= 0.985;
+      p.life--;
+    }
+  }
+
     particles=particles.filter(p=>p.life>0);for(const p of particles){p.x+=p.vx;p.y+=p.vy;p.vx*=.985;p.vy*=.985;p.life--}
   }
   function draw(t=0){drawBackground(t);planets.forEach(p=>drawPlanet(p,t));drawEffects();ctx.save();ctx.strokeStyle="#a6f5ff44";ctx.setLineDash([4,7]);ctx.beginPath();ctx.moveTo(ship.x,ship.y);ctx.lineTo(ship.x+Math.cos(ship.angle)*70,ship.y+Math.sin(ship.angle)*70);ctx.stroke();ctx.restore();drawShip(t)}
