@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Planet B Adventure</title><link rel="stylesheet" href="/style.css">
+</head>
+<body class="display-page">
+<main class="game-shell">
+  <header class="topbar">
+    <div><div class="eyebrow">CLASSROOM SPACE MISSION</div><h1>Planet B Adventure 🚀</h1></div>
+    <div class="room-pill"><span class="live-dot"></span> ROOM <strong id="roomLabel">SPACE-B</strong></div>
+  </header>
+
+  <section class="setup-panel" id="setupPanel">
+    <div class="setup-copy">
+      <div class="eyebrow">QUICK CLASSROOM SETUP</div>
+      <h2>Connect your phone to the mission</h2>
+      <p>1. Start the game. &nbsp; 2. Scan this QR code. &nbsp; 3. Control the spaceship from your phone.</p>
+      <button id="startBtn" class="start-btn">🚀 Start Game & Show QR</button>
+    </div>
+    <div class="qr-card">
+      <div id="qrPlaceholder" class="qr-placeholder">QR CODE<br><span>Tap “Start Game”</span></div>
+      <img id="qrImage" alt="Scan this QR code to open the phone controller" hidden>
+      <div class="qr-caption">SCAN TO CONTROL</div>
+      <div id="qrUrl" class="qr-url">Controller link will appear here</div>
+    </div>
+  </section>
+
+  <section class="status-row">
+    <div class="status-card"><span class="status-label">MISSION STATUS</span><strong id="statusText">Ready to start</strong></div>
+    <div class="status-card"><span class="status-label">BADGES EARNED</span><strong id="badgeCount">0 ⭐</strong></div>
+    <div class="status-card"><span class="status-label">PHONE STATUS</span><strong id="onlineCount">Waiting for phone</strong></div>
+  </section>
+
+  <section class="canvas-wrap">
+    <canvas id="spaceCanvas" aria-label="Space game with a spaceship and B planets"></canvas>
+    <div class="toast" id="toast" aria-live="polite"></div>
+    <div class="canvas-hint">✨ ENGINE TRAILS · STAR BURSTS · SOUND EFFECTS</div>
+  </section>
+  <footer class="bottom-row">
+    <div class="legend"><span class="planet-dot"></span> Touch a B planet to earn a badge</div>
+    <div class="display-actions">
+      <button class="secondary-btn" id="soundBtn" aria-label="Toggle sound effects">🔊 Sound on</button>
+      <button class="secondary-btn" id="showQrBtn">▦ Show QR</button>
+      <button class="secondary-btn" id="newGalaxyBtn">✨ New galaxy</button>
+      <button class="reset-btn" id="resetBtn">↻ Reset game</button>
+    </div>
+  </footer>
+</main>
+<div class="modal-backdrop" id="qrModal" hidden>
+  <div class="modal">
+    <button class="modal-close" id="closeQrBtn" aria-label="Close">×</button>
+    <h2>Scan to join the mission</h2>
+    <img id="modalQrImage" alt="QR code for phone controller">
+    <p>Point your phone camera at this code.</p>
+    <div id="modalQrUrl" class="qr-url"></div>
+  </div>
+</div>
+<script src="/socket.io/socket.io.js"></script><script src="/game.js"></script>
+</body></html>

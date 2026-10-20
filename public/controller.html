@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Planet B — Phone Controller</title><link rel="stylesheet" href="/style.css">
+</head>
+<body class="controller-page">
+<main class="controller-shell">
+  <div class="controller-brand">🚀 SPACE MISSION CONTROL</div>
+  <h1>Captain's Remote</h1>
+  <p class="controller-intro">You're connected to the classroom game. Tap A to spin, then B to move forward.</p>
+  <div class="room-connected"><span class="live-dot"></span><span id="roomLabel">Connecting…</span><span id="connectionStatus">Connecting to game…</span></div>
+  <section class="remote-card">
+    <div class="remote-orbit orbit-one"></div><div class="remote-orbit orbit-two"></div>
+    <div class="remote-caption" id="remoteCaption">READY, CAPTAIN?</div>
+    <div class="controller-buttons">
+      <button id="spinBtn" class="control-btn spin-btn" disabled><span class="button-letter">A</span><span class="button-label">SPIN</span></button>
+      <button id="moveBtn" class="control-btn move-btn" disabled><span class="button-letter">B</span><span class="button-label">MOVE</span></button>
+    </div>
+    <p class="remote-help">A: spin for 3 seconds and slowly stop.<br>B: fly forward about 100 pixels.</p>
+  </section>
+  <button id="reconnectBtn" class="secondary-btn reconnect-btn">Reconnect</button>
+  <p class="tiny-note">Keep this page open while you play. If the buttons don't respond, check that the classroom display is still open.</p>
+</main>
+<script src="/socket.io/socket.io.js"></script><script src="/controller.js"></script>
+</body></html>
