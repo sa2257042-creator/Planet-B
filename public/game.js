@@ -525,11 +525,12 @@
         ctx.restore();
       } else {
         ctx.beginPath();
-        ctx.arc(
-          p.x, p.y,
-          p.size * (p.life / p.max),
-          0, Math.PI * 2
-        );
+    
+ctx.arc(
+  p.x, p.y,
+  Math.max(0, p.size * (p.life / p.max)),
+  0, Math.PI * 2
+);
         ctx.fill();
       }
     }
